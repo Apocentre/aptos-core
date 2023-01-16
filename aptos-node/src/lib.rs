@@ -18,6 +18,7 @@ use crate::network::ApplicationNetworkHandle;
 use anyhow::anyhow;
 use aptos_api::bootstrap as bootstrap_api;
 use aptos_config::config::{NodeConfig, PersistableConfig};
+use aptos_fh_stream::runtime::bootstrap as bootstrap_fh_stream;
 use aptos_framework::ReleaseBundle;
 use aptos_logger::{prelude::*, telemetry_log_writer::TelemetryLog, Level, LoggerFilterUpdater};
 use aptos_state_sync_driver::driver_factory::StateSyncRuntimes;

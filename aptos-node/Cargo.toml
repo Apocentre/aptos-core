@@ -24,6 +24,7 @@ aptos-consensus-notifications = { workspace = true }
 aptos-crash-handler = { workspace = true }
 aptos-crypto = { workspace = true }
 aptos-data-client = { workspace = true }
+aptos-fh-stream = { workspace = true }
 aptos-data-streaming-service = { workspace = true }
 aptos-db = { workspace = true }
 aptos-event-notifications = { workspace = true }
