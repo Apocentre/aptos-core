@@ -7,6 +7,7 @@ use aptos_config::config::NodeConfig;
 use aptos_consensus::network_interface::ConsensusMsg;
 use aptos_consensus_notifications::ConsensusNotifier;
 use aptos_event_notifications::ReconfigNotificationListener;
+use aptos_fh_stream::runtime::bootstrap as bootstrap_fh_stream;
 use aptos_logger::{debug, telemetry_log_writer::TelemetryLog, LoggerFilterUpdater};
 use aptos_mempool::{network::MempoolSyncMsg, MempoolClientRequest, QuorumStoreRequest};
 use aptos_mempool_notifications::MempoolNotificationListener;
@@ -31,6 +32,7 @@ pub fn bootstrap_api_and_indexer(
     Receiver<MempoolClientRequest>,
     Option<Runtime>,
     Option<Runtime>,
+    Option<Runtime>,
 )> {
     // Create the mempool client and sender
     let (mempool_client_sender, mempool_client_receiver) =
@@ -50,9 +52,19 @@ pub fn bootstrap_api_and_indexer(
 
     // Create the indexer runtime
     let indexer_runtime =
-        indexer::bootstrap_indexer(node_config, chain_id, aptos_db, mempool_client_sender)?;
+        indexer::bootstrap_indexer(node_config, chain_id, aptos_db.clone(), mempool_client_sender.clone())?;
 
-    Ok((mempool_client_receiver, api_runtime, indexer_runtime))
+    let sf_runtime = match bootstrap_fh_stream(
+        &node_config,
+        chain_id,
+        aptos_db,
+        mempool_client_sender,
+    ) {
+        None => None,
+        Some(res) => Some(res?),
+    };
+    
+    Ok((mempool_client_receiver, api_runtime, indexer_runtime, sf_runtime))
 }
 
 /// Starts consensus and returns the runtime

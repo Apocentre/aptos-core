@@ -18,7 +18,6 @@ use crate::network::ApplicationNetworkHandle;
 use anyhow::anyhow;
 use aptos_api::bootstrap as bootstrap_api;
 use aptos_config::config::{NodeConfig, PersistableConfig};
-use aptos_fh_stream::runtime::bootstrap as bootstrap_fh_stream;
 use aptos_framework::ReleaseBundle;
 use aptos_logger::{prelude::*, telemetry_log_writer::TelemetryLog, Level, LoggerFilterUpdater};
 use aptos_state_sync_driver::driver_factory::StateSyncRuntimes;
@@ -139,6 +138,7 @@ pub struct AptosHandle {
     _consensus_runtime: Option<Runtime>,
     _mempool_runtime: Runtime,
     _network_runtimes: Vec<Runtime>,
+    _fh_stream: Option<Runtime>,
     _index_runtime: Option<Runtime>,
     _state_sync_runtimes: StateSyncRuntimes,
     _telemetry_runtime: Option<Runtime>,
@@ -400,7 +400,7 @@ pub fn setup_environment_and_start_node(
         )?;
 
     // Bootstrap the API and indexer
-    let (mempool_client_receiver, api_runtime, index_runtime) =
+    let (mempool_client_receiver, api_runtime, index_runtime, sf_runtime) =
         services::bootstrap_api_and_indexer(&node_config, aptos_db, chain_id)?;
 
     // Create mempool and get the consensus to mempool sender
@@ -440,6 +440,7 @@ pub fn setup_environment_and_start_node(
         _consensus_runtime: consensus_runtime,
         _mempool_runtime: mempool_runtime,
         _network_runtimes: network_runtimes,
+        _fh_stream: sf_runtime,
         _index_runtime: index_runtime,
         _state_sync_runtimes: state_sync_runtimes,
         _telemetry_runtime: telemetry_runtime,
