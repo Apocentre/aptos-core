@@ -316,15 +316,18 @@ message MoveFunctionGenericTypeParam {
 enum MoveTypes {
   Bool = 0;
   U8 = 1;
-  U64 = 2;
-  U128 = 3;
-  Address = 4;
-  Signer = 5;
-  Vector = 6; // { items: Box<MoveType> },
-  Struct = 7; //(MoveStructTag),
-  GenericTypeParam = 8; // { index: u16 },
-  Reference = 9; // { mutable: bool, to: Box<MoveType> },
-  Unparsable = 10; //(String),
+  U16 = 2;
+  U32 = 3;
+  U64 = 4;
+  U128 = 5;
+  U256 = 6;
+  Address = 7;
+  Signer = 8;
+  Vector = 9; // { items: Box<MoveType> },
+  Struct = 10; //(MoveStructTag),
+  GenericTypeParam = 11; // { index: u16 },
+  Reference = 12; // { mutable: bool, to: Box<MoveType> },
+  Unparsable = 13; //(String),
 }
 
 message MoveType{

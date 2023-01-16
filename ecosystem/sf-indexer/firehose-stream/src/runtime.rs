@@ -16,7 +16,7 @@ use extractor::Transaction as TransactionPB;
 use futures::channel::mpsc::channel;
 use prost::Message;
 use std::{convert::TryInto, sync::Arc, time::Duration};
-use storage_interface::{state_view::DbStateView, DbReader};
+use aptos_storage_interface::{state_view::DbStateView, DbReader};
 use tokio::{
     runtime::{Builder, Runtime},
     time::sleep,
