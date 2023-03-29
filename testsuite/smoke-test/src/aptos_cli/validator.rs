@@ -1,7 +1,7 @@
-// Copyright (c) Aptos
+// Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::smoke_test_environment::SwarmBuilder;
+use crate::{smoke_test_environment::SwarmBuilder, test_utils::MAX_CATCH_UP_WAIT_SECS};
 use aptos::{
     account::create::DEFAULT_FUNDED_COINS,
     common::types::TransactionSummary,
@@ -306,7 +306,7 @@ async fn test_onchain_config_change() {
         .await
         .unwrap();
     swarm
-        .wait_for_all_nodes_to_catchup_to_next(Duration::from_secs(30))
+        .wait_for_all_nodes_to_catchup_to_next(Duration::from_secs(MAX_CATCH_UP_WAIT_SECS))
         .await
         .unwrap();
     println!(
@@ -340,7 +340,7 @@ async fn test_onchain_config_change() {
     assert!(first_elected_new.unwrap() < 40);
 }
 
-fn generate_blob(data: &[u8]) -> String {
+pub(crate) fn generate_blob(data: &[u8]) -> String {
     let mut buf = String::new();
 
     write!(buf, "vector[").unwrap();
@@ -418,7 +418,7 @@ async fn test_large_total_stake() {
     );
 
     swarm
-        .wait_for_all_nodes_to_catchup(Duration::from_secs(20))
+        .wait_for_all_nodes_to_catchup(Duration::from_secs(MAX_CATCH_UP_WAIT_SECS))
         .await
         .unwrap();
 }
@@ -1247,7 +1247,7 @@ fn dns_name(addr: &str) -> DnsName {
     DnsName::try_from(addr.to_string()).unwrap()
 }
 
-struct ValidatorNodeKeys {
+pub struct ValidatorNodeKeys {
     account_private_key: Ed25519PrivateKey,
     network_private_key: x25519::PrivateKey,
     consensus_private_key: bls12381::PrivateKey,
@@ -1275,7 +1275,7 @@ impl ValidatorNodeKeys {
     }
 }
 
-async fn init_validator_account(
+pub async fn init_validator_account(
     cli: &mut CliTestFramework,
     keygen: &mut KeyGen,
     amount: Option<u64>,

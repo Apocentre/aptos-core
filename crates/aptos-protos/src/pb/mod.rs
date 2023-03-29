@@ -1,3 +1,5 @@
+// Copyright © Aptos Foundation
+
 // @generated
 pub mod aptos {
     pub mod datastream {
@@ -7,11 +9,11 @@ pub mod aptos {
             // @@protoc_insertion_point(aptos.datastream.v1)
         }
     }
-    pub mod extractor {
-        // @@protoc_insertion_point(attribute:aptos.extractor.v1)
+    pub mod transaction {
+        // @@protoc_insertion_point(attribute:aptos.transaction.v1)
         pub mod v1 {
-            include!("aptos.extractor.v1.rs");
-            // @@protoc_insertion_point(aptos.extractor.v1)
+            include!("aptos.transaction.v1.rs");
+            // @@protoc_insertion_point(aptos.transaction.v1)
         }
     }
     pub mod util {
