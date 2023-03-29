@@ -1,5 +1,3 @@
-// Copyright © Aptos Foundation
-
 // @generated
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Timestamp {

@@ -1,5 +1,3 @@
-// Copyright © Aptos Foundation
-
 // @generated
 // Transaction data is transferred via 1 stream with batches until terminated.
 // One stream consists:
@@ -62,7 +60,7 @@ pub struct RawDatastreamRequest {
     /// Required; start version of current stream.
     #[prost(uint64, tag="1")]
     pub starting_version: u64,
-    /// Optional; number of transactions to return in current stream.
+    /// Optional; number of transactions to return in current stream. 
     /// If not set, response streams infinitely.
     #[prost(uint64, optional, tag="2")]
     pub transactions_count: ::core::option::Option<u64>,

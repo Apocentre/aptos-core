@@ -1,5 +1,3 @@
-// Copyright © Aptos Foundation
-
 // @generated
 /// Generated client implementations.
 pub mod indexer_stream_client {
