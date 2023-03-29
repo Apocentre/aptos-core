@@ -37,6 +37,8 @@ mod secure_backend_config;
 pub use secure_backend_config::*;
 mod state_sync_config;
 pub use state_sync_config::*;
+mod firehose_streamer_config;
+pub use firehose_streamer_config::*;
 mod indexer_config;
 pub use indexer_config::*;
 mod indexer_grpc_config;
@@ -86,6 +88,8 @@ pub struct NodeConfig {
     pub api: ApiConfig,
     #[serde(default)]
     pub state_sync: StateSyncConfig,
+    #[serde(default)]
+    pub firehose_stream: FirehoseStreamerConfig,
     #[serde(default)]
     pub indexer_grpc: IndexerGrpcConfig,
     #[serde(default)]

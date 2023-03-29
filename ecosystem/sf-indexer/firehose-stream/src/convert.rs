@@ -5,43 +5,44 @@ use aptos_api_types::{
     AccountSignature, DeleteModule, DeleteResource, Ed25519Signature, EntryFunctionId, Event,
     GenesisPayload, MoveAbility, MoveFunction, MoveFunctionGenericTypeParam,
     MoveFunctionVisibility, MoveModule, MoveModuleBytecode, MoveModuleId, MoveScriptBytecode,
-    MoveStruct, MoveStructField, MoveStructTag, MoveType, MultiEd25519Signature, ScriptPayload,
+    MoveStruct, MoveStructField, MoveStructTag, MoveType, MultiEd25519Signature, 
+    EntryFunctionPayload, MultisigPayload, ScriptPayload, MultisigTransactionPayload,
     Transaction, TransactionInfo, TransactionPayload, TransactionSignature, WriteSet,
     WriteSetChange,
 };
 use aptos_bitvec::BitVec;
 use aptos_logger::warn;
-use aptos_protos::extractor::v1 as extractor;
+use aptos_protos::transaction::v1 as transaction;
 use aptos_protos::util::timestamp;
 use hex;
 use move_binary_format::file_format::Ability;
 use std::time::Duration;
 
-pub fn convert_move_module_id(move_module_id: &MoveModuleId) -> extractor::MoveModuleId {
-    extractor::MoveModuleId {
+pub fn convert_move_module_id(move_module_id: &MoveModuleId) -> transaction::MoveModuleId {
+    transaction::MoveModuleId {
         address: move_module_id.address.to_string(),
         name: move_module_id.name.to_string(),
     }
 }
 
-pub fn convert_move_ability(move_ability: &MoveAbility) -> extractor::MoveAbility {
+pub fn convert_move_ability(move_ability: &MoveAbility) -> transaction::MoveAbility {
     match move_ability.0 {
-        Ability::Copy => extractor::MoveAbility::Copy,
-        Ability::Drop => extractor::MoveAbility::Drop,
-        Ability::Store => extractor::MoveAbility::Store,
-        Ability::Key => extractor::MoveAbility::Key,
+        Ability::Copy => transaction::MoveAbility::Copy,
+        Ability::Drop => transaction::MoveAbility::Drop,
+        Ability::Store => transaction::MoveAbility::Store,
+        Ability::Key => transaction::MoveAbility::Key,
     }
 }
 
-pub fn convert_move_struct_field(msf: &MoveStructField) -> extractor::MoveStructField {
-    extractor::MoveStructField {
+pub fn convert_move_struct_field(msf: &MoveStructField) -> transaction::MoveStructField {
+    transaction::MoveStructField {
         name: msf.name.0.to_string(),
         r#type: Some(convert_move_type(&msf.typ)),
     }
 }
 
-pub fn convert_move_struct(move_struct: &MoveStruct) -> extractor::MoveStruct {
-    extractor::MoveStruct {
+pub fn convert_move_struct(move_struct: &MoveStruct) -> transaction::MoveStruct {
+    transaction::MoveStruct {
         name: move_struct.name.0.to_string(),
         is_native: move_struct.is_native,
         abilities: move_struct
@@ -60,18 +61,18 @@ pub fn convert_move_struct(move_struct: &MoveStruct) -> extractor::MoveStruct {
 
 pub fn convert_move_function_visibility(
     visibility: &MoveFunctionVisibility,
-) -> extractor::move_function::Visibility {
+) -> transaction::move_function::Visibility {
     match visibility {
-        MoveFunctionVisibility::Public => extractor::move_function::Visibility::Public,
-        MoveFunctionVisibility::Private => extractor::move_function::Visibility::Private,
-        MoveFunctionVisibility::Friend => extractor::move_function::Visibility::Friend,
+        MoveFunctionVisibility::Public => transaction::move_function::Visibility::Public,
+        MoveFunctionVisibility::Private => transaction::move_function::Visibility::Private,
+        MoveFunctionVisibility::Friend => transaction::move_function::Visibility::Friend,
     }
 }
 
 pub fn convert_move_function_generic_type_params(
     mfgtp: &MoveFunctionGenericTypeParam,
-) -> extractor::MoveFunctionGenericTypeParam {
-    extractor::MoveFunctionGenericTypeParam {
+) -> transaction::MoveFunctionGenericTypeParam {
+    transaction::MoveFunctionGenericTypeParam {
         constraints: mfgtp
             .constraints
             .iter()
@@ -80,8 +81,8 @@ pub fn convert_move_function_generic_type_params(
     }
 }
 
-pub fn convert_move_function(move_func: &MoveFunction) -> extractor::MoveFunction {
-    extractor::MoveFunction {
+pub fn convert_move_function(move_func: &MoveFunction) -> transaction::MoveFunction {
+    transaction::MoveFunction {
         name: move_func.name.0.to_string(),
         visibility: convert_move_function_visibility(&move_func.visibility) as i32,
         is_entry: move_func.is_entry,
@@ -95,8 +96,8 @@ pub fn convert_move_function(move_func: &MoveFunction) -> extractor::MoveFunctio
     }
 }
 
-pub fn convert_move_module(move_module: &MoveModule) -> extractor::MoveModule {
-    extractor::MoveModule {
+pub fn convert_move_module(move_module: &MoveModule) -> transaction::MoveModule {
+    transaction::MoveModule {
         address: move_module.address.to_string(),
         name: move_module.name.0.to_string(),
         friends: move_module
@@ -117,7 +118,7 @@ pub fn convert_move_module(move_module: &MoveModule) -> extractor::MoveModule {
     }
 }
 
-pub fn convert_move_module_bytecode(mmb: &MoveModuleBytecode) -> extractor::MoveModuleBytecode {
+pub fn convert_move_module_bytecode(mmb: &MoveModuleBytecode) -> transaction::MoveModuleBytecode {
     let abi = mmb.clone().try_parse_abi().map_or_else(
         |e| {
             warn!("[fh-stream] Could not decode MoveModuleBytecode ABI: {}", e);
@@ -125,7 +126,7 @@ pub fn convert_move_module_bytecode(mmb: &MoveModuleBytecode) -> extractor::Move
         },
         |mmb| mmb.abi.map(|move_module| convert_move_module(&move_module)),
     );
-    extractor::MoveModuleBytecode {
+    transaction::MoveModuleBytecode {
         bytecode: mmb.bytecode.0.clone(),
         abi,
     }
@@ -133,20 +134,20 @@ pub fn convert_move_module_bytecode(mmb: &MoveModuleBytecode) -> extractor::Move
 
 pub fn convert_entry_function_id(
     entry_function_id: &EntryFunctionId,
-) -> extractor::EntryFunctionId {
-    extractor::EntryFunctionId {
+) -> transaction::EntryFunctionId {
+    transaction::EntryFunctionId {
         module: Some(convert_move_module_id(&entry_function_id.module)),
         name: entry_function_id.name.to_string(),
     }
 }
 
-pub fn convert_transaction_payload(payload: &TransactionPayload) -> extractor::TransactionPayload {
+pub fn convert_transaction_payload(payload: &TransactionPayload) -> transaction::TransactionPayload {
     match payload {
-        TransactionPayload::EntryFunctionPayload(sfp) => extractor::TransactionPayload {
-            r#type: extractor::transaction_payload::Type::EntryFunctionPayload as i32,
+        TransactionPayload::EntryFunctionPayload(sfp) => transaction::TransactionPayload {
+            r#type: transaction::transaction_payload::Type::EntryFunctionPayload as i32,
             payload: Some(
-                extractor::transaction_payload::Payload::EntryFunctionPayload(
-                    extractor::EntryFunctionPayload {
+                transaction::transaction_payload::Payload::EntryFunctionPayload(
+                    transaction::EntryFunctionPayload {
                         function: Some(convert_entry_function_id(&sfp.function)),
                         type_arguments: sfp.type_arguments.iter().map(convert_move_type).collect(),
                         arguments: sfp
@@ -158,17 +159,17 @@ pub fn convert_transaction_payload(payload: &TransactionPayload) -> extractor::T
                 ),
             ),
         },
-        TransactionPayload::ScriptPayload(sp) => extractor::TransactionPayload {
-            r#type: extractor::transaction_payload::Type::ScriptPayload as i32,
-            payload: Some(extractor::transaction_payload::Payload::ScriptPayload(
+        TransactionPayload::ScriptPayload(sp) => transaction::TransactionPayload {
+            r#type: transaction::transaction_payload::Type::ScriptPayload as i32,
+            payload: Some(transaction::transaction_payload::Payload::ScriptPayload(
                 convert_script_payload(sp),
             )),
         },
-        TransactionPayload::ModuleBundlePayload(mbp) => extractor::TransactionPayload {
-            r#type: extractor::transaction_payload::Type::ModuleBundlePayload as i32,
+        TransactionPayload::ModuleBundlePayload(mbp) => transaction::TransactionPayload {
+            r#type: transaction::transaction_payload::Type::ModuleBundlePayload as i32,
             payload: Some(
-                extractor::transaction_payload::Payload::ModuleBundlePayload(
-                    extractor::ModuleBundlePayload {
+                transaction::transaction_payload::Payload::ModuleBundlePayload(
+                    transaction::ModuleBundlePayload {
                         modules: mbp
                             .modules
                             .iter()
@@ -178,66 +179,72 @@ pub fn convert_transaction_payload(payload: &TransactionPayload) -> extractor::T
                 ),
             ),
         },
+        TransactionPayload::MultisigPayload(mp) => transaction::TransactionPayload {
+          r#type: transaction::transaction_payload::Type::MultisigPayload as i32,
+          payload: Some(transaction::transaction_payload::Payload::MultisigPayload(
+              convert_multisig_payload(mp),
+          )),
+        },
     }
 }
 
 #[inline]
-pub fn convert_events(events: &[Event]) -> Vec<extractor::Event> {
+pub fn convert_events(events: &[Event]) -> Vec<transaction::Event> {
     events.iter().map(convert_event).collect()
 }
 
-pub fn convert_write_set(write_set: &WriteSet) -> extractor::WriteSet {
+pub fn convert_write_set(write_set: &WriteSet) -> transaction::WriteSet {
     let (write_set_type, write_set) = match write_set {
         WriteSet::ScriptWriteSet(sws) => {
-            let write_set_type = extractor::write_set::WriteSetType::ScriptWriteSet as i32;
+            let write_set_type = transaction::write_set::WriteSetType::ScriptWriteSet as i32;
 
             let write_set =
-                extractor::write_set::WriteSet::ScriptWriteSet(extractor::ScriptWriteSet {
+                transaction::write_set::WriteSet::ScriptWriteSet(transaction::ScriptWriteSet {
                     execute_as: sws.execute_as.to_string(),
                     script: Some(convert_script_payload(&sws.script)),
                 });
             (write_set_type, Some(write_set))
         }
         WriteSet::DirectWriteSet(dws) => {
-            let write_set_type = extractor::write_set::WriteSetType::DirectWriteSet as i32;
+            let write_set_type = transaction::write_set::WriteSetType::DirectWriteSet as i32;
 
             let write_set =
-                extractor::write_set::WriteSet::DirectWriteSet(extractor::DirectWriteSet {
+                transaction::write_set::WriteSet::DirectWriteSet(transaction::DirectWriteSet {
                     write_set_change: convert_write_set_changes(&dws.changes),
                     events: convert_events(&dws.events),
                 });
             (write_set_type, Some(write_set))
         }
     };
-    extractor::WriteSet {
+    transaction::WriteSet {
         write_set_type,
         write_set,
     }
 }
 
-pub fn empty_move_type(r#type: extractor::MoveTypes) -> extractor::MoveType {
-    extractor::MoveType {
+pub fn empty_move_type(r#type: transaction::MoveTypes) -> transaction::MoveType {
+    transaction::MoveType {
         r#type: r#type as i32,
         content: None,
     }
 }
 
-pub fn convert_move_type(move_type: &MoveType) -> extractor::MoveType {
+pub fn convert_move_type(move_type: &MoveType) -> transaction::MoveType {
     let r#type = match move_type {
-        MoveType::Bool => extractor::MoveTypes::Bool,
-        MoveType::U8 => extractor::MoveTypes::U8,
-        MoveType::U16 => extractor::MoveTypes::U16,
-        MoveType::U32 => extractor::MoveTypes::U32,
-        MoveType::U64 => extractor::MoveTypes::U64,
-        MoveType::U128 => extractor::MoveTypes::U128,
-        MoveType::U256 => extractor::MoveTypes::U128,
-        MoveType::Address => extractor::MoveTypes::Address,
-        MoveType::Signer => extractor::MoveTypes::Signer,
-        MoveType::Vector { .. } => extractor::MoveTypes::Vector,
-        MoveType::Struct(_) => extractor::MoveTypes::Struct,
-        MoveType::GenericTypeParam { .. } => extractor::MoveTypes::GenericTypeParam,
-        MoveType::Reference { .. } => extractor::MoveTypes::Reference,
-        MoveType::Unparsable(_) => extractor::MoveTypes::Unparsable,
+        MoveType::Bool => transaction::MoveTypes::Bool,
+        MoveType::U8 => transaction::MoveTypes::U8,
+        MoveType::U16 => transaction::MoveTypes::U16,
+        MoveType::U32 => transaction::MoveTypes::U32,
+        MoveType::U64 => transaction::MoveTypes::U64,
+        MoveType::U128 => transaction::MoveTypes::U128,
+        MoveType::U256 => transaction::MoveTypes::U128,
+        MoveType::Address => transaction::MoveTypes::Address,
+        MoveType::Signer => transaction::MoveTypes::Signer,
+        MoveType::Vector { .. } => transaction::MoveTypes::Vector,
+        MoveType::Struct(_) => transaction::MoveTypes::Struct,
+        MoveType::GenericTypeParam { .. } => transaction::MoveTypes::GenericTypeParam,
+        MoveType::Reference { .. } => transaction::MoveTypes::Reference,
+        MoveType::Unparsable(_) => transaction::MoveTypes::Unparsable,
     };
     let content = match move_type {
         MoveType::Bool => None,
@@ -249,33 +256,33 @@ pub fn convert_move_type(move_type: &MoveType) -> extractor::MoveType {
         MoveType::U256 => None,
         MoveType::Address => None,
         MoveType::Signer => None,
-        MoveType::Vector { items } => Some(extractor::move_type::Content::Vector(Box::from(
+        MoveType::Vector { items } => Some(transaction::move_type::Content::Vector(Box::from(
             convert_move_type(items),
         ))),
-        MoveType::Struct(struct_tag) => Some(extractor::move_type::Content::Struct(
+        MoveType::Struct(struct_tag) => Some(transaction::move_type::Content::Struct(
             convert_move_struct_tag(struct_tag),
         )),
         MoveType::GenericTypeParam { index } => Some(
-            extractor::move_type::Content::GenericTypeParamIndex((*index) as u32),
+            transaction::move_type::Content::GenericTypeParamIndex((*index) as u32),
         ),
-        MoveType::Reference { mutable, to } => Some(extractor::move_type::Content::Reference(
-            Box::new(extractor::move_type::ReferenceType {
+        MoveType::Reference { mutable, to } => Some(transaction::move_type::Content::Reference(
+            Box::new(transaction::move_type::ReferenceType {
                 mutable: *mutable,
                 to: Some(Box::new(convert_move_type(to))),
             }),
         )),
         MoveType::Unparsable(string) => {
-            Some(extractor::move_type::Content::Unparsable(string.clone()))
+            Some(transaction::move_type::Content::Unparsable(string.clone()))
         }
     };
-    extractor::MoveType {
+    transaction::MoveType {
         r#type: r#type as i32,
         content,
     }
 }
 
 #[inline]
-pub fn convert_write_set_changes(changes: &[WriteSetChange]) -> Vec<extractor::WriteSetChange> {
+pub fn convert_write_set_changes(changes: &[WriteSetChange]) -> Vec<transaction::WriteSetChange> {
     changes.iter().map(convert_write_set_change).collect()
 }
 
@@ -285,8 +292,8 @@ pub fn convert_hex_string_to_bytes(hex_string: &str) -> Vec<u8> {
         .unwrap_or_else(|_| panic!("Could not convert '{}' to bytes", hex_string))
 }
 
-pub fn convert_move_struct_tag(struct_tag: &MoveStructTag) -> extractor::MoveStructTag {
-    extractor::MoveStructTag {
+pub fn convert_move_struct_tag(struct_tag: &MoveStructTag) -> transaction::MoveStructTag {
+    transaction::MoveStructTag {
         address: struct_tag.address.to_string(),
         module: struct_tag.module.to_string(),
         name: struct_tag.name.to_string(),
@@ -298,19 +305,19 @@ pub fn convert_move_struct_tag(struct_tag: &MoveStructTag) -> extractor::MoveStr
     }
 }
 
-pub fn convert_delete_module(delete_module: &DeleteModule) -> extractor::DeleteModule {
-    extractor::DeleteModule {
+pub fn convert_delete_module(delete_module: &DeleteModule) -> transaction::DeleteModule {
+    transaction::DeleteModule {
         address: delete_module.address.to_string(),
         state_key_hash: convert_hex_string_to_bytes(&delete_module.state_key_hash),
-        module: Some(extractor::MoveModuleId {
+        module: Some(transaction::MoveModuleId {
             address: delete_module.module.address.to_string(),
             name: delete_module.module.name.to_string(),
         }),
     }
 }
 
-pub fn convert_delete_resource(delete_resource: &DeleteResource) -> extractor::DeleteResource {
-    extractor::DeleteResource {
+pub fn convert_delete_resource(delete_resource: &DeleteResource) -> transaction::DeleteResource {
+    transaction::DeleteResource {
         address: delete_resource.address.to_string(),
         state_key_hash: convert_hex_string_to_bytes(&delete_resource.state_key_hash),
         r#type: Some(convert_move_struct_tag(&delete_resource.resource)),
@@ -318,17 +325,17 @@ pub fn convert_delete_resource(delete_resource: &DeleteResource) -> extractor::D
     }
 }
 
-pub fn convert_write_set_change(change: &WriteSetChange) -> extractor::WriteSetChange {
+pub fn convert_write_set_change(change: &WriteSetChange) -> transaction::WriteSetChange {
     match change {
-        WriteSetChange::DeleteModule(delete_module) => extractor::WriteSetChange {
-            r#type: extractor::write_set_change::Type::DeleteModule as i32,
-            change: Some(extractor::write_set_change::Change::DeleteModule(
+        WriteSetChange::DeleteModule(delete_module) => transaction::WriteSetChange {
+            r#type: transaction::write_set_change::Type::DeleteModule as i32,
+            change: Some(transaction::write_set_change::Change::DeleteModule(
                 convert_delete_module(delete_module),
             )),
         },
-        WriteSetChange::DeleteResource(delete_resource) => extractor::WriteSetChange {
-            r#type: extractor::write_set_change::Type::DeleteResource as i32,
-            change: Some(extractor::write_set_change::Change::DeleteResource(
+        WriteSetChange::DeleteResource(delete_resource) => transaction::WriteSetChange {
+            r#type: transaction::write_set_change::Type::DeleteResource as i32,
+            change: Some(transaction::write_set_change::Change::DeleteResource(
                 convert_delete_resource(delete_resource),
             )),
         },
@@ -340,16 +347,16 @@ pub fn convert_write_set_change(change: &WriteSetChange) -> extractor::WriteSetC
                 )
             });
 
-            extractor::WriteSetChange {
-                r#type: extractor::write_set_change::Type::DeleteTableItem as i32,
-                change: Some(extractor::write_set_change::Change::DeleteTableItem(
-                    extractor::DeleteTableItem {
+            transaction::WriteSetChange {
+                r#type: transaction::write_set_change::Type::DeleteTableItem as i32,
+                change: Some(transaction::write_set_change::Change::DeleteTableItem(
+                    transaction::DeleteTableItem {
                         state_key_hash: convert_hex_string_to_bytes(
                             &delete_table_item.state_key_hash,
                         ),
                         handle: delete_table_item.handle.to_string(),
                         key: delete_table_item.key.to_string(),
-                        data: Some(extractor::DeleteTableData {
+                        data: Some(transaction::DeleteTableData {
                             key: data.key.to_string(),
                             key_type: data.key_type.clone(),
                         }),
@@ -357,20 +364,20 @@ pub fn convert_write_set_change(change: &WriteSetChange) -> extractor::WriteSetC
                 )),
             }
         }
-        WriteSetChange::WriteModule(write_module) => extractor::WriteSetChange {
-            r#type: extractor::write_set_change::Type::WriteModule as i32,
-            change: Some(extractor::write_set_change::Change::WriteModule(
-                extractor::WriteModule {
+        WriteSetChange::WriteModule(write_module) => transaction::WriteSetChange {
+            r#type: transaction::write_set_change::Type::WriteModule as i32,
+            change: Some(transaction::write_set_change::Change::WriteModule(
+                transaction::WriteModule {
                     address: write_module.address.to_string(),
                     state_key_hash: convert_hex_string_to_bytes(&write_module.state_key_hash),
                     data: Some(convert_move_module_bytecode(&write_module.data)),
                 },
             )),
         },
-        WriteSetChange::WriteResource(write_resource) => extractor::WriteSetChange {
-            r#type: extractor::write_set_change::Type::WriteResource as i32,
-            change: Some(extractor::write_set_change::Change::WriteResource(
-                extractor::WriteResource {
+        WriteSetChange::WriteResource(write_resource) => transaction::WriteSetChange {
+            r#type: transaction::write_set_change::Type::WriteResource as i32,
+            change: Some(transaction::write_set_change::Change::WriteResource(
+                transaction::WriteResource {
                     address: write_resource.address.to_string(),
                     state_key_hash: convert_hex_string_to_bytes(&write_resource.state_key_hash),
                     r#type: Some(convert_move_struct_tag(&write_resource.data.typ)),
@@ -391,16 +398,16 @@ pub fn convert_write_set_change(change: &WriteSetChange) -> extractor::WriteSetC
                     write_table_item
                 )
             });
-            extractor::WriteSetChange {
-                r#type: extractor::write_set_change::Type::WriteTableItem as i32,
-                change: Some(extractor::write_set_change::Change::WriteTableItem(
-                    extractor::WriteTableItem {
+            transaction::WriteSetChange {
+                r#type: transaction::write_set_change::Type::WriteTableItem as i32,
+                change: Some(transaction::write_set_change::Change::WriteTableItem(
+                    transaction::WriteTableItem {
                         state_key_hash: convert_hex_string_to_bytes(
                             &write_table_item.state_key_hash,
                         ),
                         handle: write_table_item.handle.to_string(),
                         key: write_table_item.key.to_string(),
-                        data: Some(extractor::WriteTableData {
+                        data: Some(transaction::WriteTableData {
                             key: data.key.to_string(),
                             key_type: data.key_type.clone(),
                             value: data.value.to_string(),
@@ -413,21 +420,39 @@ pub fn convert_write_set_change(change: &WriteSetChange) -> extractor::WriteSetC
     }
 }
 
-pub fn convert_move_script_bytecode(msb: &MoveScriptBytecode) -> extractor::MoveScriptBytecode {
+pub fn convert_move_script_bytecode(msb: &MoveScriptBytecode) -> transaction::MoveScriptBytecode {
     let abi = msb
         .clone()
         .try_parse_abi()
         .abi
         .map(|move_func| convert_move_function(&move_func));
 
-    extractor::MoveScriptBytecode {
+    transaction::MoveScriptBytecode {
         bytecode: msb.bytecode.0.clone(),
         abi,
     }
 }
 
-pub fn convert_script_payload(script_payload: &ScriptPayload) -> extractor::ScriptPayload {
-    extractor::ScriptPayload {
+pub fn convert_entry_function_payload(
+  entry_function_payload: &EntryFunctionPayload,
+) -> transaction::EntryFunctionPayload {
+  transaction::EntryFunctionPayload {
+      function: Some(convert_entry_function_id(&entry_function_payload.function)),
+      type_arguments: entry_function_payload
+          .type_arguments
+          .iter()
+          .map(convert_move_type)
+          .collect(),
+      arguments: entry_function_payload
+          .arguments
+          .iter()
+          .map(|move_value| move_value.to_string())
+          .collect(),
+  }
+}
+
+pub fn convert_script_payload(script_payload: &ScriptPayload) -> transaction::ScriptPayload {
+    transaction::ScriptPayload {
         code: Some(convert_move_script_bytecode(&script_payload.code)),
         type_arguments: script_payload
             .type_arguments
@@ -442,10 +467,35 @@ pub fn convert_script_payload(script_payload: &ScriptPayload) -> extractor::Scri
     }
 }
 
-pub fn convert_event(event: &Event) -> extractor::Event {
+pub fn convert_multisig_payload(
+  multisig_payload: &MultisigPayload,
+) -> transaction::MultisigPayload {
+  let transaction_payload = multisig_payload
+      .transaction_payload
+      .as_ref()
+      .map(|p| match p {
+          MultisigTransactionPayload::EntryFunctionPayload(entry_function_payload) => {
+              transaction::MultisigTransactionPayload {
+                  r#type: transaction::multisig_transaction_payload::Type::EntryFunctionPayload
+                      as i32,
+                  payload: Some(
+                      transaction::multisig_transaction_payload::Payload::EntryFunctionPayload(
+                          convert_entry_function_payload(entry_function_payload),
+                      ),
+                  ),
+              }
+          },
+      });
+  transaction::MultisigPayload {
+      multisig_address: multisig_payload.multisig_address.to_string(),
+      transaction_payload,
+  }
+}
+
+pub fn convert_event(event: &Event) -> transaction::Event {
     let event_key: aptos_types::event::EventKey = event.guid.into();
-    extractor::Event {
-        key: Some(extractor::EventKey {
+    transaction::Event {
+        key: Some(transaction::EventKey {
             creation_number: event_key.get_creation_number(),
             account_address: event_key.get_creator_address().to_string(),
         }),
@@ -471,8 +521,8 @@ pub fn convert_timestamp_usecs(timestamp: u64) -> timestamp::Timestamp {
     }
 }
 
-pub fn convert_transaction_info(transaction_info: &TransactionInfo) -> extractor::TransactionInfo {
-    extractor::TransactionInfo {
+pub fn convert_transaction_info(transaction_info: &TransactionInfo) -> transaction::TransactionInfo {
+    transaction::TransactionInfo {
         hash: transaction_info.hash.0.to_vec(),
         state_checkpoint_hash: transaction_info
             .state_checkpoint_hash
@@ -487,8 +537,8 @@ pub fn convert_transaction_info(transaction_info: &TransactionInfo) -> extractor
     }
 }
 
-pub fn convert_ed25519_signature(sig: &Ed25519Signature) -> extractor::Ed25519Signature {
-    extractor::Ed25519Signature {
+pub fn convert_ed25519_signature(sig: &Ed25519Signature) -> transaction::Ed25519Signature {
+    transaction::Ed25519Signature {
         public_key: sig.public_key.0.clone(),
         signature: sig.signature.0.clone(),
     }
@@ -496,9 +546,9 @@ pub fn convert_ed25519_signature(sig: &Ed25519Signature) -> extractor::Ed25519Si
 
 pub fn convert_multi_ed25519_signature(
     sig: &MultiEd25519Signature,
-) -> extractor::MultiEd25519Signature {
+) -> transaction::MultiEd25519Signature {
     let public_key_indices: Vec<usize> = BitVec::from(sig.bitmap.0.clone()).iter_ones().collect();
-    extractor::MultiEd25519Signature {
+    transaction::MultiEd25519Signature {
         public_keys: sig.public_keys.iter().map(|pk| pk.0.clone()).collect(),
         signatures: sig.signatures.iter().map(|sig| sig.0.clone()).collect(),
         threshold: sig.threshold as u32,
@@ -511,24 +561,24 @@ pub fn convert_multi_ed25519_signature(
 
 pub fn convert_account_signature(
     account_signature: &AccountSignature,
-) -> extractor::AccountSignature {
+) -> transaction::AccountSignature {
     let r#type = match account_signature {
-        AccountSignature::Ed25519Signature(_) => extractor::account_signature::Type::Ed25519,
+        AccountSignature::Ed25519Signature(_) => transaction::account_signature::Type::Ed25519,
         AccountSignature::MultiEd25519Signature(_) => {
-            extractor::account_signature::Type::MultiEd25519
+            transaction::account_signature::Type::MultiEd25519
         }
     };
     let signature = match account_signature {
         AccountSignature::Ed25519Signature(s) => {
-            extractor::account_signature::Signature::Ed25519(convert_ed25519_signature(s))
+            transaction::account_signature::Signature::Ed25519(convert_ed25519_signature(s))
         }
         AccountSignature::MultiEd25519Signature(s) => {
-            extractor::account_signature::Signature::MultiEd25519(convert_multi_ed25519_signature(
+            transaction::account_signature::Signature::MultiEd25519(convert_multi_ed25519_signature(
                 s,
             ))
         }
     };
-    extractor::AccountSignature {
+    transaction::AccountSignature {
         r#type: r#type as i32,
         signature: Some(signature),
     }
@@ -536,26 +586,26 @@ pub fn convert_account_signature(
 
 pub fn convert_transaction_signature(
     signature: &Option<TransactionSignature>,
-) -> Option<extractor::Signature> {
+) -> Option<transaction::Signature> {
     let signature = match signature {
         None => return None,
         Some(s) => s,
     };
     let r#type = match signature {
-        TransactionSignature::Ed25519Signature(_) => extractor::signature::Type::Ed25519,
-        TransactionSignature::MultiEd25519Signature(_) => extractor::signature::Type::MultiEd25519,
-        TransactionSignature::MultiAgentSignature(_) => extractor::signature::Type::MultiAgent,
+        TransactionSignature::Ed25519Signature(_) => transaction::signature::Type::Ed25519,
+        TransactionSignature::MultiEd25519Signature(_) => transaction::signature::Type::MultiEd25519,
+        TransactionSignature::MultiAgentSignature(_) => transaction::signature::Type::MultiAgent,
     };
 
     let signature = match signature {
         TransactionSignature::Ed25519Signature(s) => {
-            extractor::signature::Signature::Ed25519(convert_ed25519_signature(s))
+            transaction::signature::Signature::Ed25519(convert_ed25519_signature(s))
         }
         TransactionSignature::MultiEd25519Signature(s) => {
-            extractor::signature::Signature::MultiEd25519(convert_multi_ed25519_signature(s))
+            transaction::signature::Signature::MultiEd25519(convert_multi_ed25519_signature(s))
         }
         TransactionSignature::MultiAgentSignature(s) => {
-            extractor::signature::Signature::MultiAgent(extractor::MultiAgentSignature {
+            transaction::signature::Signature::MultiAgent(transaction::MultiAgentSignature {
                 sender: Some(convert_account_signature(&s.sender)),
                 secondary_signer_addresses: s
                     .secondary_signer_addresses
@@ -571,7 +621,7 @@ pub fn convert_transaction_signature(
         }
     };
 
-    Some(extractor::Signature {
+    Some(transaction::Signature {
         r#type: r#type as i32,
         signature: Some(signature),
     })
@@ -581,17 +631,17 @@ pub fn convert_transaction(
     transaction: &Transaction,
     block_height: u64,
     current_epoch: u64,
-) -> extractor::Transaction {
+) -> transaction::Transaction {
     let mut timestamp: Option<timestamp::Timestamp> = None;
 
     let txn_type = match transaction {
-        Transaction::UserTransaction(_) => extractor::transaction::TransactionType::User,
-        Transaction::GenesisTransaction(_) => extractor::transaction::TransactionType::Genesis,
+        Transaction::UserTransaction(_) => transaction::transaction::TransactionType::User,
+        Transaction::GenesisTransaction(_) => transaction::transaction::TransactionType::Genesis,
         Transaction::BlockMetadataTransaction(_) => {
-            extractor::transaction::TransactionType::BlockMetadata
+            transaction::transaction::TransactionType::BlockMetadata
         }
         Transaction::StateCheckpointTransaction(_) => {
-            extractor::transaction::TransactionType::StateCheckpoint
+            transaction::transaction::TransactionType::StateCheckpoint
         }
         Transaction::PendingTransaction(_) => panic!("PendingTransaction is not supported"),
     };
@@ -603,8 +653,8 @@ pub fn convert_transaction(
                 ut.request.expiration_timestamp_secs.0,
                 chrono::NaiveDateTime::MAX.timestamp() as u64,
             )));
-            extractor::transaction::TxnData::User(extractor::UserTransaction {
-                request: Some(extractor::UserTransactionRequest {
+            transaction::transaction::TxnData::User(transaction::UserTransaction {
+                request: Some(transaction::UserTransactionRequest {
                     sender: ut.request.sender.to_string(),
                     sequence_number: ut.request.sequence_number.0,
                     max_gas_amount: ut.request.max_gas_amount.0,
@@ -620,14 +670,14 @@ pub fn convert_transaction(
             let payload = match &gt.payload {
                 GenesisPayload::WriteSetPayload(wsp) => convert_write_set(&wsp.write_set),
             };
-            extractor::transaction::TxnData::Genesis(extractor::GenesisTransaction {
+            transaction::transaction::TxnData::Genesis(transaction::GenesisTransaction {
                 payload: Some(payload),
                 events: convert_events(&gt.events),
             })
         }
         Transaction::BlockMetadataTransaction(bm) => {
             timestamp = Some(convert_timestamp_usecs(bm.timestamp.0));
-            extractor::transaction::TxnData::BlockMetadata(extractor::BlockMetadataTransaction {
+            transaction::transaction::TxnData::BlockMetadata(transaction::BlockMetadataTransaction {
                 id: bm.id.to_string(),
                 events: convert_events(&bm.events),
                 previous_block_votes_bitvec: bm.previous_block_votes_bitvec.clone(),
@@ -637,14 +687,14 @@ pub fn convert_transaction(
             })
         }
         Transaction::StateCheckpointTransaction(_st) => {
-            extractor::transaction::TxnData::StateCheckpoint(
-                extractor::StateCheckpointTransaction {},
+            transaction::transaction::TxnData::StateCheckpoint(
+                transaction::StateCheckpointTransaction {},
             )
         }
         Transaction::PendingTransaction(_) => panic!("PendingTransaction not supported"),
     };
 
-    extractor::Transaction {
+    transaction::Transaction {
         timestamp: Some(
             timestamp.unwrap_or_else(|| convert_timestamp_usecs(transaction.timestamp())),
         ),

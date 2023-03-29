@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::metrics;
-use aptos_protos::extractor::v1 as extractor;
+use aptos_protos::transaction::v1 as transaction;
 
 use crate::convert::convert_transaction;
 use aptos_api::context::Context;
@@ -12,7 +12,7 @@ use aptos_logger::{debug, error, warn};
 use aptos_mempool::MempoolClientSender;
 use aptos_types::chain_id::ChainId;
 use aptos_vm::data_cache::StorageAdapterOwned;
-use extractor::Transaction as TransactionPB;
+use transaction::Transaction as TransactionPB;
 use futures::channel::mpsc::channel;
 use prost::Message;
 use std::{convert::TryInto, sync::Arc, time::Duration};
