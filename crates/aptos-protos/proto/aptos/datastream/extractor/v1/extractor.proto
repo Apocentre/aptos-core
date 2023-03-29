@@ -9,6 +9,7 @@ option go_package = "github.com/streamingfast/firehose-aptos/types/pb/aptos/extr
 
 import "aptos/util/timestamp/timestamp.proto";
 
+
 // A block on Aptos holds transactions in chronological order (ordered by a transactions monotonically increasing `version` field)
 // All blocks start with a `BlockMetadataTransaction`, and are followed by zero or more transactions.
 // The next `BlockMetadataTransaction` denotes the end of the current block, and the start of the next one.
@@ -61,13 +62,6 @@ message Transaction {
     StateCheckpointTransaction state_checkpoint = 9;
     UserTransaction user = 10;
   }
-}
-
-// TransactionTrimmed is a real Transaction with most of the fields removed so that
-// we can easily decode only the few fields that we have interest in in certain situations.
-message TransactionTrimmed {
-  aptos.util.timestamp.Timestamp timestamp = 1;
-  uint64 version = 2;
 }
 
 message BlockMetadataTransaction {
@@ -232,6 +226,8 @@ message TransactionPayload {
     ENTRY_FUNCTION_PAYLOAD = 0;
     SCRIPT_PAYLOAD = 1;
     MODULE_BUNDLE_PAYLOAD = 2;
+    WRITE_SET_PAYLOAD = 3;
+    MULTISIG_PAYLOAD = 4;
   }
 
   Type type = 1;
@@ -241,6 +237,7 @@ message TransactionPayload {
     ScriptPayload script_payload = 3;
     ModuleBundlePayload module_bundle_payload = 4;
     WriteSetPayload write_set_payload = 5;
+    MultisigPayload multisig_payload = 6;
   }
 }
 
@@ -259,6 +256,23 @@ message ScriptPayload {
   MoveScriptBytecode code = 1;
   repeated MoveType type_arguments = 2;
   repeated string arguments = 3;
+}
+
+message MultisigPayload {
+  string multisig_address = 1;
+  optional MultisigTransactionPayload transaction_payload = 2;
+}
+
+message MultisigTransactionPayload {
+  enum Type {
+    ENTRY_FUNCTION_PAYLOAD = 0;
+  }
+
+  Type type = 1;
+
+  oneof payload {
+    EntryFunctionPayload entry_function_payload = 2;
+  }
 }
 
 message ModuleBundlePayload {
@@ -313,21 +327,22 @@ message MoveFunctionGenericTypeParam {
   repeated MoveAbility constraints = 1;
 }
 
+// Next id: 12
 enum MoveTypes {
   Bool = 0;
   U8 = 1;
-  U16 = 2;
-  U32 = 3;
-  U64 = 4;
-  U128 = 5;
-  U256 = 6;
-  Address = 7;
-  Signer = 8;
-  Vector = 9; // { items: Box<MoveType> },
-  Struct = 10; //(MoveStructTag),
-  GenericTypeParam = 11; // { index: u16 },
-  Reference = 12; // { mutable: bool, to: Box<MoveType> },
-  Unparsable = 13; //(String),
+  U16 = 11;
+  U32 = 12;
+  U64 = 2;
+  U128 = 3;
+  U256 = 13;
+  Address = 4;
+  Signer = 5;
+  Vector = 6; // { items: Box<MoveType> },
+  Struct = 7; //(MoveStructTag),
+  GenericTypeParam = 8; // { index: u16 },
+  Reference = 9; // { mutable: bool, to: Box<MoveType> },
+  Unparsable = 10; //(String),
 }
 
 message MoveType{
