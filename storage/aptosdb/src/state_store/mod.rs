@@ -311,13 +311,13 @@ impl StateStore {
                 );
                 let difference = ledger_commit_progress - overall_commit_progress;
                 assert_le!(difference, MAX_COMMIT_PROGRESS_DIFFERENCE);
-                truncate_ledger_db(
-                    Arc::clone(&ledger_db),
-                    ledger_commit_progress,
-                    overall_commit_progress,
-                    difference as usize,
-                )
-                .expect("Failed to truncate ledger db.");
+                // truncate_ledger_db(
+                //     Arc::clone(&ledger_db),
+                //     ledger_commit_progress,
+                //     overall_commit_progress,
+                //     difference as usize,
+                // )
+                // .expect("Failed to truncate ledger db.");
             }
 
             if state_kv_commit_progress != overall_commit_progress {
