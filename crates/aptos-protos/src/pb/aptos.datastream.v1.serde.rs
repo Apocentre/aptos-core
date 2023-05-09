@@ -7,15 +7,15 @@ impl serde::Serialize for RawDatastreamRequest {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.starting_version != 0 {
+        if self.starting_version.is_some() {
             len += 1;
         }
         if self.transactions_count.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("aptos.datastream.v1.RawDatastreamRequest", len)?;
-        if self.starting_version != 0 {
-            struct_ser.serialize_field("startingVersion", ToString::to_string(&self.starting_version).as_str())?;
+        if let Some(v) = self.starting_version.as_ref() {
+            struct_ser.serialize_field("startingVersion", ToString::to_string(&v).as_str())?;
         }
         if let Some(v) = self.transactions_count.as_ref() {
             struct_ser.serialize_field("transactionsCount", ToString::to_string(&v).as_str())?;
@@ -91,7 +91,7 @@ impl<'de> serde::Deserialize<'de> for RawDatastreamRequest {
                                 return Err(serde::de::Error::duplicate_field("startingVersion"));
                             }
                             starting_version__ = 
-                                Some(map.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                                map.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
                         GeneratedField::TransactionsCount => {
@@ -105,7 +105,7 @@ impl<'de> serde::Deserialize<'de> for RawDatastreamRequest {
                     }
                 }
                 Ok(RawDatastreamRequest {
-                    starting_version: starting_version__.unwrap_or_default(),
+                    starting_version: starting_version__,
                     transactions_count: transactions_count__,
                 })
             }
