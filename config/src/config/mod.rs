@@ -9,6 +9,7 @@ mod config_sanitizer;
 mod consensus_config;
 mod error;
 mod execution_config;
+mod firehose_streamer_config;
 mod identity_config;
 mod indexer_config;
 mod indexer_grpc_config;
@@ -27,12 +28,14 @@ mod state_sync_config;
 mod storage_config;
 mod utils;
 
+
 // All public usage statements should be declared below
 pub use api_config::*;
 pub use base_config::*;
 pub use consensus_config::*;
 pub use error::*;
 pub use execution_config::*;
+pub use firehose_streamer_config::*;
 pub use identity_config::*;
 pub use indexer_config::*;
 pub use indexer_grpc_config::*;

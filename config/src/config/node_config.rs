@@ -7,7 +7,7 @@ use crate::{
         utils::RootPath, ApiConfig, BaseConfig, ConsensusConfig, Error, ExecutionConfig,
         IndexerConfig, IndexerGrpcConfig, InspectionServiceConfig, LoggerConfig, MempoolConfig,
         NetworkConfig, PeerMonitoringServiceConfig, SafetyRulesTestConfig, StateSyncConfig,
-        StorageConfig,
+        StorageConfig, FirehoseStreamerConfig,
     },
     network_id::NetworkId,
 };
@@ -54,6 +54,8 @@ pub struct NodeConfig {
     pub peer_monitoring_service: PeerMonitoringServiceConfig,
     #[serde(default)]
     pub state_sync: StateSyncConfig,
+    #[serde(default)]
+    pub firehose_stream: FirehoseStreamerConfig,
     #[serde(default)]
     pub storage: StorageConfig,
     #[serde(default)]
