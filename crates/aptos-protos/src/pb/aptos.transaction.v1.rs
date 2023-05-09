@@ -386,7 +386,6 @@ pub mod transaction_payload {
         /// (if the ProtoBuf definition does not change) and safe for programmatic use.
         pub fn as_str_name(&self) -> &'static str {
             match self {
-                Type::NotSet => "TYPE_NOT_SET",
                 Type::EntryFunctionPayload => "ENTRY_FUNCTION_PAYLOAD",
                 Type::ScriptPayload => "SCRIPT_PAYLOAD",
                 Type::ModuleBundlePayload => "MODULE_BUNDLE_PAYLOAD",

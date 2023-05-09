@@ -5693,7 +5693,6 @@ impl serde::Serialize for transaction_payload::Type {
         S: serde::Serializer,
     {
         let variant = match self {
-            Self::NotSet => "TYPE_NOT_SET",
             Self::EntryFunctionPayload => "ENTRY_FUNCTION_PAYLOAD",
             Self::ScriptPayload => "SCRIPT_PAYLOAD",
             Self::ModuleBundlePayload => "MODULE_BUNDLE_PAYLOAD",
@@ -5758,7 +5757,6 @@ impl<'de> serde::Deserialize<'de> for transaction_payload::Type {
                 E: serde::de::Error,
             {
                 match value {
-                    "TYPE_NOT_SET" => Ok(transaction_payload::Type::NotSet),
                     "ENTRY_FUNCTION_PAYLOAD" => Ok(transaction_payload::Type::EntryFunctionPayload),
                     "SCRIPT_PAYLOAD" => Ok(transaction_payload::Type::ScriptPayload),
                     "MODULE_BUNDLE_PAYLOAD" => Ok(transaction_payload::Type::ModuleBundlePayload),
