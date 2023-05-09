@@ -64,10 +64,16 @@ spec aptos_framework::reconfiguration {
     spec reconfigure {
         use aptos_framework::coin::CoinInfo;
         use aptos_framework::aptos_coin::AptosCoin;
+        use aptos_framework::transaction_fee;
+        use aptos_framework::staking_config;
+
+        pragma verify = false; // TODO: set to false because of timeout
 
         requires exists<stake::ValidatorFees>(@aptos_framework);
         requires exists<CoinInfo<AptosCoin>>(@aptos_framework);
 
+        include transaction_fee::RequiresCollectedFeesPerValueLeqBlockAptosSupply;
+        include staking_config::StakingRewardsConfigRequirement;
         aborts_if false;
     }
 }

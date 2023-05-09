@@ -14,10 +14,12 @@ use aptos_mempool::{network::MempoolSyncMsg, MempoolClientRequest, QuorumStoreRe
 use aptos_mempool_notifications::MempoolNotificationListener;
 use aptos_network::application::interface::NetworkClientInterface;
 use aptos_peer_monitoring_service_server::{
-    network::PeerMonitoringServiceNetworkEvents, PeerMonitoringServiceServer,
+    network::PeerMonitoringServiceNetworkEvents, storage::StorageReader,
+    PeerMonitoringServiceServer,
 };
 use aptos_peer_monitoring_service_types::PeerMonitoringServiceMessage;
 use aptos_storage_interface::{DbReader, DbReaderWriter};
+use aptos_time_service::TimeService;
 use aptos_types::chain_id::ChainId;
 use futures::channel::{mpsc, mpsc::Sender};
 use std::{sync::Arc, thread, time::Instant};
@@ -152,6 +154,7 @@ pub fn start_node_inspection_service(node_config: &NodeConfig) {
 pub fn start_peer_monitoring_service(
     node_config: &NodeConfig,
     network_interfaces: ApplicationNetworkInterfaces<PeerMonitoringServiceMessage>,
+    db_reader: Arc<dyn DbReader>,
 ) -> Runtime {
     // Get the network client and events
     let network_client = network_interfaces.network_client;
@@ -161,8 +164,6 @@ pub fn start_peer_monitoring_service(
     let peer_monitoring_service_runtime =
         aptos_runtimes::spawn_named_runtime("peer-mon".into(), None);
 
-    // TODO: spawn the client
-
     // Create and spawn the peer monitoring server
     let peer_monitoring_network_events =
         PeerMonitoringServiceNetworkEvents::new(network_service_events);
@@ -171,8 +172,24 @@ pub fn start_peer_monitoring_service(
         peer_monitoring_service_runtime.handle().clone(),
         peer_monitoring_network_events,
         network_client.get_peers_and_metadata(),
+        StorageReader::new(db_reader),
+        TimeService::real(),
     );
     peer_monitoring_service_runtime.spawn(peer_monitoring_server.start());
+
+    // Spawn the peer monitoring client
+    if node_config
+        .peer_monitoring_service
+        .enable_peer_monitoring_client
+    {
+        peer_monitoring_service_runtime.spawn(
+            aptos_peer_monitoring_service_client::start_peer_monitor(
+                node_config.clone(),
+                network_client,
+                Some(peer_monitoring_service_runtime.handle().clone()),
+            ),
+        );
+    }
 
     // Return the runtime
     peer_monitoring_service_runtime

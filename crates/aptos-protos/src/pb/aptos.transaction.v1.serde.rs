@@ -135,6 +135,7 @@ impl serde::Serialize for account_signature::Type {
         S: serde::Serializer,
     {
         let variant = match self {
+            Self::NotSet => "TYPE_NOT_SET",
             Self::Ed25519 => "ED25519",
             Self::MultiEd25519 => "MULTI_ED25519",
         };
@@ -148,6 +149,7 @@ impl<'de> serde::Deserialize<'de> for account_signature::Type {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "TYPE_NOT_SET",
             "ED25519",
             "MULTI_ED25519",
         ];
@@ -192,6 +194,7 @@ impl<'de> serde::Deserialize<'de> for account_signature::Type {
                 E: serde::de::Error,
             {
                 match value {
+                    "TYPE_NOT_SET" => Ok(account_signature::Type::NotSet),
                     "ED25519" => Ok(account_signature::Type::Ed25519),
                     "MULTI_ED25519" => Ok(account_signature::Type::MultiEd25519),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
@@ -1998,6 +2001,7 @@ impl serde::Serialize for MoveAbility {
         S: serde::Serializer,
     {
         let variant = match self {
+            Self::NotSet => "MOVE_ABILITY_NOT_SET",
             Self::Copy => "COPY",
             Self::Drop => "DROP",
             Self::Store => "STORE",
@@ -2013,6 +2017,7 @@ impl<'de> serde::Deserialize<'de> for MoveAbility {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "MOVE_ABILITY_NOT_SET",
             "COPY",
             "DROP",
             "STORE",
@@ -2059,6 +2064,7 @@ impl<'de> serde::Deserialize<'de> for MoveAbility {
                 E: serde::de::Error,
             {
                 match value {
+                    "MOVE_ABILITY_NOT_SET" => Ok(MoveAbility::NotSet),
                     "COPY" => Ok(MoveAbility::Copy),
                     "DROP" => Ok(MoveAbility::Drop),
                     "STORE" => Ok(MoveAbility::Store),
@@ -2257,6 +2263,7 @@ impl serde::Serialize for move_function::Visibility {
         S: serde::Serializer,
     {
         let variant = match self {
+            Self::NotSet => "VISIBILITY_NOT_SET",
             Self::Private => "PRIVATE",
             Self::Public => "PUBLIC",
             Self::Friend => "FRIEND",
@@ -2271,6 +2278,7 @@ impl<'de> serde::Deserialize<'de> for move_function::Visibility {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "VISIBILITY_NOT_SET",
             "PRIVATE",
             "PUBLIC",
             "FRIEND",
@@ -2316,6 +2324,7 @@ impl<'de> serde::Deserialize<'de> for move_function::Visibility {
                 E: serde::de::Error,
             {
                 match value {
+                    "VISIBILITY_NOT_SET" => Ok(move_function::Visibility::NotSet),
                     "PRIVATE" => Ok(move_function::Visibility::Private),
                     "PUBLIC" => Ok(move_function::Visibility::Public),
                     "FRIEND" => Ok(move_function::Visibility::Friend),
@@ -3719,6 +3728,7 @@ impl serde::Serialize for MoveTypes {
         S: serde::Serializer,
     {
         let variant = match self {
+            Self::NotSet => "MOVE_TYPES_NOT_SET",
             Self::Bool => "Bool",
             Self::U8 => "U8",
             Self::U16 => "U16",
@@ -3744,6 +3754,7 @@ impl<'de> serde::Deserialize<'de> for MoveTypes {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "MOVE_TYPES_NOT_SET",
             "Bool",
             "U8",
             "U16",
@@ -3800,6 +3811,7 @@ impl<'de> serde::Deserialize<'de> for MoveTypes {
                 E: serde::de::Error,
             {
                 match value {
+                    "MOVE_TYPES_NOT_SET" => Ok(MoveTypes::NotSet),
                     "Bool" => Ok(MoveTypes::Bool),
                     "U8" => Ok(MoveTypes::U8),
                     "U16" => Ok(MoveTypes::U16),
@@ -4784,6 +4796,7 @@ impl serde::Serialize for signature::Type {
         S: serde::Serializer,
     {
         let variant = match self {
+            Self::NotSet => "TYPE_NOT_SET",
             Self::Ed25519 => "ED25519",
             Self::MultiEd25519 => "MULTI_ED25519",
             Self::MultiAgent => "MULTI_AGENT",
@@ -4798,6 +4811,7 @@ impl<'de> serde::Deserialize<'de> for signature::Type {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "TYPE_NOT_SET",
             "ED25519",
             "MULTI_ED25519",
             "MULTI_AGENT",
@@ -4843,6 +4857,7 @@ impl<'de> serde::Deserialize<'de> for signature::Type {
                 E: serde::de::Error,
             {
                 match value {
+                    "TYPE_NOT_SET" => Ok(signature::Type::NotSet),
                     "ED25519" => Ok(signature::Type::Ed25519),
                     "MULTI_ED25519" => Ok(signature::Type::MultiEd25519),
                     "MULTI_AGENT" => Ok(signature::Type::MultiAgent),
@@ -5179,6 +5194,7 @@ impl serde::Serialize for transaction::TransactionType {
         S: serde::Serializer,
     {
         let variant = match self {
+            Self::NotSet => "TRANSACTION_TYPE_NOT_SET",
             Self::Genesis => "GENESIS",
             Self::BlockMetadata => "BLOCK_METADATA",
             Self::StateCheckpoint => "STATE_CHECKPOINT",
@@ -5194,6 +5210,7 @@ impl<'de> serde::Deserialize<'de> for transaction::TransactionType {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "TRANSACTION_TYPE_NOT_SET",
             "GENESIS",
             "BLOCK_METADATA",
             "STATE_CHECKPOINT",
@@ -5240,6 +5257,7 @@ impl<'de> serde::Deserialize<'de> for transaction::TransactionType {
                 E: serde::de::Error,
             {
                 match value {
+                    "TRANSACTION_TYPE_NOT_SET" => Ok(transaction::TransactionType::NotSet),
                     "GENESIS" => Ok(transaction::TransactionType::Genesis),
                     "BLOCK_METADATA" => Ok(transaction::TransactionType::BlockMetadata),
                     "STATE_CHECKPOINT" => Ok(transaction::TransactionType::StateCheckpoint),
@@ -5675,6 +5693,7 @@ impl serde::Serialize for transaction_payload::Type {
         S: serde::Serializer,
     {
         let variant = match self {
+            Self::NotSet => "TYPE_NOT_SET",
             Self::EntryFunctionPayload => "ENTRY_FUNCTION_PAYLOAD",
             Self::ScriptPayload => "SCRIPT_PAYLOAD",
             Self::ModuleBundlePayload => "MODULE_BUNDLE_PAYLOAD",
@@ -5691,6 +5710,7 @@ impl<'de> serde::Deserialize<'de> for transaction_payload::Type {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "TYPE_NOT_SET",
             "ENTRY_FUNCTION_PAYLOAD",
             "SCRIPT_PAYLOAD",
             "MODULE_BUNDLE_PAYLOAD",
@@ -5738,6 +5758,7 @@ impl<'de> serde::Deserialize<'de> for transaction_payload::Type {
                 E: serde::de::Error,
             {
                 match value {
+                    "TYPE_NOT_SET" => Ok(transaction_payload::Type::NotSet),
                     "ENTRY_FUNCTION_PAYLOAD" => Ok(transaction_payload::Type::EntryFunctionPayload),
                     "SCRIPT_PAYLOAD" => Ok(transaction_payload::Type::ScriptPayload),
                     "MODULE_BUNDLE_PAYLOAD" => Ok(transaction_payload::Type::ModuleBundlePayload),
@@ -6490,6 +6511,7 @@ impl serde::Serialize for write_set::WriteSetType {
         S: serde::Serializer,
     {
         let variant = match self {
+            Self::NotSet => "WRITE_SET_TYPE_NOT_SET",
             Self::ScriptWriteSet => "SCRIPT_WRITE_SET",
             Self::DirectWriteSet => "DIRECT_WRITE_SET",
         };
@@ -6503,6 +6525,7 @@ impl<'de> serde::Deserialize<'de> for write_set::WriteSetType {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "WRITE_SET_TYPE_NOT_SET",
             "SCRIPT_WRITE_SET",
             "DIRECT_WRITE_SET",
         ];
@@ -6547,6 +6570,7 @@ impl<'de> serde::Deserialize<'de> for write_set::WriteSetType {
                 E: serde::de::Error,
             {
                 match value {
+                    "WRITE_SET_TYPE_NOT_SET" => Ok(write_set::WriteSetType::NotSet),
                     "SCRIPT_WRITE_SET" => Ok(write_set::WriteSetType::ScriptWriteSet),
                     "DIRECT_WRITE_SET" => Ok(write_set::WriteSetType::DirectWriteSet),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
@@ -6749,6 +6773,7 @@ impl serde::Serialize for write_set_change::Type {
         S: serde::Serializer,
     {
         let variant = match self {
+            Self::NotSet => "TYPE_NOT_SET",
             Self::DeleteModule => "DELETE_MODULE",
             Self::DeleteResource => "DELETE_RESOURCE",
             Self::DeleteTableItem => "DELETE_TABLE_ITEM",
@@ -6766,6 +6791,7 @@ impl<'de> serde::Deserialize<'de> for write_set_change::Type {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "TYPE_NOT_SET",
             "DELETE_MODULE",
             "DELETE_RESOURCE",
             "DELETE_TABLE_ITEM",
@@ -6814,6 +6840,7 @@ impl<'de> serde::Deserialize<'de> for write_set_change::Type {
                 E: serde::de::Error,
             {
                 match value {
+                    "TYPE_NOT_SET" => Ok(write_set_change::Type::NotSet),
                     "DELETE_MODULE" => Ok(write_set_change::Type::DeleteModule),
                     "DELETE_RESOURCE" => Ok(write_set_change::Type::DeleteResource),
                     "DELETE_TABLE_ITEM" => Ok(write_set_change::Type::DeleteTableItem),

@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 # Prepare your Aptos Dev Environment
 
-To kickstart your journey in the Aptos ecosystem, set up your environment as needed by your role. To interact with Aptos, you may simply [install the Aptos command line interface (CLI)](#install-the-cli). To develop Aptos itself, you will need to [clone the Aptos-core repository](#clone-the-Aptos-core-repo).
+To kickstart your journey in the Aptos ecosystem, set up your environment as needed by your role. To interact with Aptos, you may simply [install the Aptos command line interface (CLI)](#install-the-cli). To develop Aptos itself, you will need to [clone the Aptos-core repository](#clone-the-aptos-core-repo).
 
 See the [Workflows](#workflows) for use cases associated with each path. See the [Aptos developer resources](#aptos-developer-resources) for quick links to Aptos networks, SDKs, and other tools.
 
@@ -60,120 +60,9 @@ The [Aptos source files](https://github.com/aptos-labs/aptos-core) themselves al
 [Install the Aptos CLI](../cli-tools/aptos-cli-tool/index.md) to interact with the Aptos network. As a developer in the Aptos ecosystem, set up your development environment as described in the link.
 This tool will help you compile, test, and publish contracts as well as run contracts directly on the blockchain.
 
-## Clone the Aptos-core repo
+## Building Aptos From Source
 
-As described in [Workflows](#workflows), you may interact with Aptos using only the CLI. For more advanced users, if you need the source you may clone the `aptos-core` GitHub repo from [GitHub](https://github.com/aptos-labs/aptos-core).
-
-1. Install [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). Git is required to clone the aptos-core repo, and will be need to be installed prior to continuing.  You can install it with the instructions on the official [Git website](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
-
-1. Clone the Aptos repository. To clone the Aptos repository (repo), you first need to open a command line prompt (Terminal on Mac / Linux, Powershell on Windows).  Then run the following command to clone the Git repository from GitHub.
-
-      ```
-      git clone https://github.com/aptos-labs/aptos-core.git
-      ```
-
-1. Now let's go into the newly created directory `aptos-core` by *changing directory* or `cd`ing into it:
-    ```
-    cd aptos-core
-    ```
-   
-## Set up build dependencies
-
-   Prepare your developer environment by installing the dependencies needed to build, test and inspect Aptos Core.
-   No matter your selected mechanism for installing these dependencies, **it is imperative you keep your entire toolchain up-to-date**. If you encounter issues later, update all packages and try again.
-
-<details>
-<summary>macOS</summary>
-
-**> Using the automated script**
-
-1. Ensure you have `brew` package manager installed: https://brew.sh/
-1. Run the dev setup script to prepare your environment: `./scripts/dev_setup.sh`
-1. Update your current shell environment: `source ~/.cargo/env`.
-
-:::tip
-You can see the available options for the script by running `./scripts/dev_setup.sh --help`
-:::
-
-**> Manual installation of dependencies**
-
-If the script above doesn't work for you, you can install these manually, but it's **not recommended**.
-
-1. [Rust](https://www.rust-lang.org/tools/install)
-1. [CMake](https://cmake.org/download/)
-1. [LLVM](https://releases.llvm.org/)
-1. [LLD](https://lld.llvm.org/)
-
-</details>
-
-<details>
-<summary>Linux</summary>
-
-**> Using the automated script**
-
-1. Run the dev setup script to prepare your environment: `./scripts/dev_setup.sh`
-1. Update your current shell environment: `source ~/.cargo/env`
-
-:::tip
-You can see the available options for the script by running `./scripts/dev_setup.sh --help`
-:::
-
-**> Manual installation of dependencies**
-
-If the script above does not work for you, you can install these manually, but it is **not recommended**:
-
-1. [Rust](https://www.rust-lang.org/tools/install).
-1. [CMake](https://cmake.org/download/).
-1. [LLVM](https://releases.llvm.org/).
-1. [libssl-dev](https://packages.ubuntu.com/bionic/libssl-dev) and [libclang-dev](https://packages.ubuntu.com/bionic/libclang-dev)
-
-</details>
-
-<details>
-<summary>Windows</summary>
-
-:::tip
-The aptos-core codebase currently has no script similar to the `dev_setup.sh` script for
-Windows.  All dependencies must be manually installed.
-:::
-
-**> Manual installation of dependencies**
-
-1. Install [Rust](https://www.rust-lang.org/tools/install).
-1. Install [CMake](https://cmake.org/download/).
-1. If on Windows ARM, install [Visual Studio Preview](https://visualstudio.microsoft.com/vs/preview/).
-1. Install [C++ build tools for Windows](https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2022). Note: This may be installed already with Rust.
-1. Install [LLVM](https://releases.llvm.org/).  The last prebuilt release is [11.0.0](https://releases.llvm.org/download.html#11.0.0)
-1. Open a new powershell terminal after installing all dependencies
-
-</details>
-
-## Check out release branch
-
-Optionally, check out a release branch to install an Aptos node. We suggest you check out `devnet` for your first development. See [Choose a network](./system-integrators-guide.md#choose-a-network) for an explanation of their differences. 
-
-<Tabs groupId="network">
-    <TabItem value="devnet" label="Devnet">
-
-    ```
-    git checkout --track origin/devnet
-    ```
-</TabItem>
-    <TabItem value="testnet" label="Testnet" default>
-
-    ```
-    git checkout --track origin/testnet
-    ```
-</TabItem>
-<TabItem value="mainnet" label="Mainnet">
-
-    ```
-    git checkout --track origin/mainnet
-    ```
-</TabItem>
-</Tabs>
-
-Now your basic Aptos development environment is ready. Head over to our [Developer Tutorials](../tutorials/index.md) to get started in Aptos.
+See [Building Aptos From Source](building-from-source.md)
 
 ## Create and fund test accounts
 
@@ -230,4 +119,3 @@ This section contains links to frequently referred Aptos developer resources.
 ### IDE plugins for Move language
 
 Install the [IDE plugins for the Move language](../guides/move-guides/index.md#ides-for-move) for even more handy features.
-

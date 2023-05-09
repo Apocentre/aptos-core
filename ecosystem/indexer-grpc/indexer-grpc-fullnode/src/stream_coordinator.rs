@@ -3,7 +3,7 @@
 
 use crate::{
     convert::convert_transaction,
-    counters::{FETCHED_TRANSACTION, UNABLE_TO_FETCH_TRANSACTION},
+    counters::{FETCHED_LATENCY_IN_SECS, FETCHED_TRANSACTION, UNABLE_TO_FETCH_TRANSACTION},
     runtime::{DEFAULT_NUM_RETRIES, RETRY_TIME_MILLIS},
 };
 use aptos_api::context::Context;
@@ -13,10 +13,13 @@ use aptos_protos::{
     datastream::v1::{
         raw_datastream_response, RawDatastreamResponse, TransactionOutput, TransactionsOutput,
     },
-    transaction::v1::Transaction as TransactionPB,
+    transaction::testing1::v1::Transaction as TransactionPB,
 };
 use prost::Message;
-use std::{sync::Arc, time::Duration};
+use std::{
+    sync::Arc,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 use tokio::sync::mpsc;
 use tonic::Status;
 
@@ -84,6 +87,7 @@ impl IndexerStreamCoordinator {
                 let raw_txns =
                     Self::fetch_raw_txns_with_retries(context.clone(), ledger_version, batch).await;
                 let api_txns = Self::convert_to_api_txns(context, raw_txns).await;
+                api_txns.first().map(record_fetched_transaction_latency);
                 let pb_txns = Self::convert_to_pb_txns(api_txns);
                 let encoded = Self::encode_pb_txns(pb_txns);
                 // Wrap in stream response object and send to channel
@@ -243,9 +247,7 @@ impl IndexerStreamCoordinator {
             // Do not update block_height if first block is block metadata
             if ind > 0 {
                 // Update the timestamp if the next block occurs
-                if let aptos_types::transaction::Transaction::BlockMetadata(ref txn) =
-                    raw_txn.transaction
-                {
+                if let Some(txn) = raw_txn.transaction.try_as_block_metadata() {
                     timestamp = txn.timestamp_usecs();
                     epoch = txn.epoch();
                     epoch_bcs = aptos_api_types::U64::from(epoch);
@@ -380,5 +382,19 @@ impl IndexerStreamCoordinator {
                 );
             }
         }
+    }
+}
+
+/// Record the transaction fetched from the storage latency.
+fn record_fetched_transaction_latency(txn: &aptos_api_types::Transaction) {
+    let current_time_in_secs = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Current time is before UNIX_EPOCH")
+        .as_secs_f64();
+    let txn_timestamp = txn.timestamp();
+
+    if txn_timestamp > 0 {
+        let txn_timestemp_in_secs = txn_timestamp as f64 / 1_000_000.0;
+        FETCHED_LATENCY_IN_SECS.set(current_time_in_secs - txn_timestemp_in_secs);
     }
 }

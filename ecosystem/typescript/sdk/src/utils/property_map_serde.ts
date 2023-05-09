@@ -1,16 +1,16 @@
 import { Bytes, Deserializer, Serializer } from "../bcs";
-import { TypeTagParser } from "../transaction_builder";
 import { serializeArg, stringStructTag } from "../transaction_builder/builder_utils";
 import {
   TypeTag,
   TypeTagAddress,
   TypeTagBool,
+  TypeTagParser,
   TypeTagStruct,
   TypeTagU128,
   TypeTagU64,
   TypeTagU8,
 } from "../aptos_types";
-import { HexString } from "../hex_string";
+import { HexString } from "./hex_string";
 
 export class PropertyValue {
   type: string;

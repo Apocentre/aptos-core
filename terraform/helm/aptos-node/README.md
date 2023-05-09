@@ -36,7 +36,7 @@ Aptos blockchain node deployment
 | haproxy.enabled | bool | `true` | Enable HAProxy deployment in front of validator and fullnodes |
 | haproxy.image.pullPolicy | string | `"IfNotPresent"` | Image pull policy to use for HAProxy images |
 | haproxy.image.repo | string | `"haproxy"` | Image repo to use for HAProxy images |
-| haproxy.image.tag | string | `"2.2.14@sha256:36aa98fff27dcb2d12c93e68515a6686378c783ea9b1ab1d01ce993a5cbc73e1"` | Image tag to use for HAProxy images |
+| haproxy.image.tag | string | `"2.2.29@sha256:8019a233a37045a27970dbc990e9ea485799200c40f658e4620b7fdf55641a3c"` | Image tag to use for HAProxy images |
 | haproxy.limits.validator.connectionsPerIPPerMin | int | `12` | Limit the number of connections per IP address per min |
 | haproxy.limits.validator.maxBytesOutRate10sec | int | `134217728` |  |
 | haproxy.limits.validator.rateLimitSession | int | `256` |  |
@@ -56,7 +56,6 @@ Aptos blockchain node deployment
 | numFullnodeGroups | int | `1` | Total number of fullnode groups to deploy |
 | numValidators | int | `1` | Number of validators to deploy |
 | overrideNodeConfig | bool | `false` | Specify validator and fullnode NodeConfigs via named ConfigMaps, rather than the generated ones from this chart. |
-| podSecurityPolicy | bool | `true` | LEGACY: create PodSecurityPolicy, which exists at the cluster-level |
 | pyroscope.enabled | bool | `false` | Enable Pyroscope profiling |
 | pyroscope.secretName | string | `"pyroscope"` | Secret which contains the Pyroscope API key and other configuration |
 | service.domain | string | `nil` | If set, the base domain name to use for External DNS |
@@ -126,10 +125,6 @@ ServiceAccounts:
 * [optional] `<RELEASE_NAME>` - The default service account
 * `<RELEASE_NAME>-validator` - The validator service account
 * `<RELEASE_NAME>-fullnode` - The fullnode service account
-
-[optional] PodSecurityPolicy:
-* `<RELEASE_NAME>` - The default PodSecurityPolicy for validators and fullnodes
-* `<RELEASE_NAME>-haproxy` - The PodSecurityPolicy for HAProxy
 
 ## Common Operations
 

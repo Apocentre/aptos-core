@@ -98,12 +98,18 @@ const config = {
           {
             type: "dropdown",
             label: "Start",
+            to: "whats-new-in-docs",
             position: "left",
             items: [
               {
                 label: "See What's New",
                 type: "doc",
                 docId: "whats-new-in-docs",
+              },
+              {
+                label: "Latest Releases",
+                type: "doc",
+                docId: "releases/index",
               },
               {
                 label: "Read the Aptos White Paper",
@@ -130,6 +136,7 @@ const config = {
           {
             type: "dropdown",
             label: "Apps",
+            to: "concepts/coin-and-token/index",
             position: "left",
             items: [
               {
@@ -167,6 +174,7 @@ const config = {
           {
             type: "dropdown",
             label: "Move",
+            to: "guides/move-guides/aptos-move-guides",
             position: "left",
             items: [
               {
@@ -185,6 +193,16 @@ const config = {
                 docId: "guides/move-guides/move-structure",
               },
               {
+                label: "Move Scripts",
+                type: "doc",
+                docId: "guides/move-guides/move-scripts",
+              },
+              {
+                label: "Bytecode for Dependencies",
+                type: "doc",
+                docId: "guides/move-guides/bytecode-dependencies",
+              },
+              {
                 label: "How Base Gas Works",
                 type: "doc",
                 docId: "concepts/base-gas",
@@ -200,20 +218,21 @@ const config = {
                 docId: "tutorials/first-move-module",
               },
               {
-                label: "Upgrade Move Code",
-                type: "doc",
-                docId: "guides/move-guides/upgrading-move-code",
-              },
-              {
                 label: "Aptos Move Book",
                 type: "doc",
                 docId: "guides/move-guides/book/SUMMARY",
+              },
+              {
+                label: "Move Prover Book",
+                type: "doc",
+                docId: "guides/prover-guides/index",
               },
             ],
           },
           {
             type: "dropdown",
             label: "Tokens",
+            to: "/category/nft",
             position: "left",
             items: [
               {
@@ -249,13 +268,14 @@ const config = {
               {
                 type: "doc",
                 label: "Airdrop Aptos Tokens",
-                docId: "concepts/coin-and-token/airdrop-aptos-tokens",
+                docId: "concepts/coin-and-token/nft-airdrop-example",
               },
             ],
           },
           {
             type: "dropdown",
             label: "Nodes",
+            to: "nodes/nodes-landing",
             position: "left",
             items: [
               {
@@ -274,7 +294,7 @@ const config = {
                 docId: "nodes/validator-node/index",
               },
               {
-                label: "Run a FullNode",
+                label: "Run a Fullnode",
                 type: "doc",
                 docId: "nodes/full-node/index",
               },
@@ -298,6 +318,7 @@ const config = {
           {
             type: "dropdown",
             label: "Reference",
+            to: "reference/aptos-ref-docs",
             position: "left",
             items: [
               {
@@ -329,6 +350,44 @@ const config = {
                 label: "Issues and Workarounds",
                 type: "doc",
                 docId: "issues-and-workarounds",
+              },
+            ],
+          },
+          {
+            type: "dropdown",
+            label: "Community",
+            to: "community/help-index",
+            position: "left",
+            items: [
+              {
+                label: "Help the Aptos Ecosystem",
+                type: "doc",
+                docId: "community/index",
+              },
+              {
+                label: "Community Highlights",
+                type: "doc",
+                docId: "community/contributions/index",
+              },
+              {
+                label: "External Resources",
+                type: "doc",
+                docId: "community/external-resources",
+              },
+              {
+                label: "Rust Coding Guidelines",
+                type: "doc",
+                docId: "community/rust-coding-guidelines",
+              },
+              {
+                label: "Update Aptos.dev",
+                type: "doc",
+                docId: "community/site-updates",
+              },
+              {
+                label: "Follow Aptos Style",
+                type: "doc",
+                docId: "community/aptos-style",
               },
             ],
           },
@@ -398,6 +457,10 @@ const config = {
       "@docusaurus/plugin-client-redirects",
       {
         redirects: [
+          {
+            to: "/guides/move-guides/book/package-upgrades",
+            from: "/guides/move-guides/upgrading-move-code",
+          },
           {
             to: "/nodes/full-node/public-fullnode",
             from: "/nodes/full-node/fullnode-for-devnet",
